@@ -1,0 +1,229 @@
+# security_test.py
+import tkinter as tk
+from tkinter import messagebox
+import os
+import getpass
+import socket
+from datetime import datetime
+import platform
+import smtplib
+from email.mime.text import MIMEText
+
+def get_user_info():
+    """Gather user and system information"""
+    try:
+        username = getpass.getuser()
+        computer_name = socket.gethostname()
+        
+        # Try to get domain username (Windows)
+        try:
+            domain_user = os.environ.get('USERDOMAIN', '') + '\\' + os.environ.get('USERNAME', username)
+        except:
+            domain_user = username
+            
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        os_info = platform.platform()
+        
+        return {
+            'timestamp': timestamp,
+            'username': username,
+            'domain_user': domain_user,
+            'computer_name': computer_name,
+            'os': os_info
+        }
+    except Exception as e:
+        # Fallback to minimal info
+        return {
+            'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            'username': 'Unknown',
+            'domain_user': 'Unknown',
+            'computer_name': 'Unknown',
+            'os': 'Unknown'
+        }
+
+def log_to_usb(user_info):
+    """Log to file on USB drive"""
+    try:
+        # Get the directory where the exe is running from (USB drive)
+        if getattr(sys, 'frozen', False):
+            # Running as compiled exe
+            script_dir = os.path.dirname(sys.executable)
+        else:
+            # Running as script
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+        
+        log_file = os.path.join(script_dir, ".system.log")
+        
+        # Create log entry
+        log_entry = (f"{user_info['timestamp']}|"
+                    f"{user_info['domain_user']}|"
+                    f"{user_info['computer_name']}|"
+                    f"{user_info['os']}\n")
+        
+        # Append to log
+        with open(log_file, "a", encoding='utf-8') as f:
+            f.write(log_entry)
+        
+        # Hide the log file on Windows
+        if os.name == 'nt':
+            try:
+                import ctypes
+                ctypes.windll.kernel32.SetFileAttributesW(log_file, 0x02)  # FILE_ATTRIBUTE_HIDDEN
+            except:
+                pass
+        
+        return True
+    except Exception as e:
+        # Silently fail - don't alert user if logging fails
+        return False
+
+def log_to_network(user_info):
+    """Optional: Log to network share for centralized collection"""
+    try:
+        # Configure this to your network share
+        network_path = r"\\fileserver\security\usb_security_test.log"
+        
+        # Only attempt if network path is configured
+        if "fileserver" not in network_path:
+            return False
+            
+        log_entry = (f"{user_info['timestamp']}|"
+                    f"{user_info['domain_user']}|"
+                    f"{user_info['computer_name']}|"
+                    f"{user_info['os']}\n")
+        
+        with open(network_path, "a", encoding='utf-8') as f:
+            f.write(log_entry)
+        
+        return True
+    except:
+        # Network logging is optional - fail silently
+        return False
+
+def show_warning():
+    """Display the security warning message"""
+    root = tk.Tk()
+    root.withdraw()  # Hide the main tkinter window
+    root.attributes('-topmost', True)  # Keep message box on top
+    
+    message = (
+        "⚠️ SECURITY AWARENESS ALERT ⚠️\n\n"
+        "You have FAILED this security test.\n\n"
+        "You executed a program from an unknown USB device. "
+        "In a real attack, this could have:\n\n"
+        "  • Installed ransomware or malware\n"
+        "  • Stolen your credentials and passwords\n"
+        "  • Compromised the entire corporate network\n"
+        "  • Exfiltrated sensitive company data\n\n"
+        "REMEMBER: NEVER plug in unknown USB drives or execute files "
+        "from untrusted sources.\n\n"
+        "This incident has been logged and reported to IT Security.\n"
+        "You will receive additional security awareness training."
+    )
+    
+    messagebox.showerror(
+        "Security Test - FAILED ❌",
+        message
+    )
+    
+    root.destroy()
+
+def main():
+    """Main execution"""
+    import sys
+    
+    # Gather user information
+    user_info = get_user_info()
+    
+    # Log to USB drive
+    log_to_usb(user_info)
+    
+    # Optional: Log to network share
+    log_to_network(user_info)
+    
+    # Show warning message
+    show_warning()
+
+    # Optional: Send email alert to IT
+    #send_alert_email(user_info)
+
+if __name__ == "__main__":
+    main()
+
+def send_alert_email(user_info):
+    """Send email alert to IT when someone runs the program"""
+    try:
+        sender = "security-test@example.com"
+        recipient = "it-security@example.com"
+        
+        subject = f"🚨 Security Test Failed: {user_info['username']}"
+        body = f"""
+        Security Test Alert
+        
+        User: {user_info['domain_user']}
+        Computer: {user_info['computer_name']}
+        Time: {user_info['timestamp']}
+        OS: {user_info['os']}
+        
+        This user executed an unknown USB program and requires security awareness training.
+        """
+        
+        msg = MIMEText(body)
+        msg['Subject'] = subject
+        msg['From'] = sender
+        msg['To'] = recipient
+        
+        # Configure your SMTP server
+        smtp_server = "smtp.yourcompany.com"
+        smtp_port = 587
+        
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
+            server.starttls()
+            # server.login("username", "password")  # If auth required
+            server.send_message(msg)
+        
+        return True
+    except:
+        return False
+
+# Add to security_test.py
+import smtplib
+from email.mime.text import MIMEText
+
+def send_alert_email(user_info):
+    """Send email alert to IT when someone runs the program"""
+    try:
+        sender = "security-test@yourcompany.com"
+        recipient = "it-security@yourcompany.com"
+        
+        subject = f"🚨 Security Test Failed: {user_info['username']}"
+        body = f"""
+        Security Test Alert
+        
+        User: {user_info['domain_user']}
+        Computer: {user_info['computer_name']}
+        Time: {user_info['timestamp']}
+        OS: {user_info['os']}
+        
+        This user executed an unknown USB program and requires security awareness training.
+        """
+        
+        msg = MIMEText(body)
+        msg['Subject'] = subject
+        msg['From'] = sender
+        msg['To'] = recipient
+        
+        # Configure your SMTP server
+        smtp_server = "smtp.yourcompany.com"
+        smtp_port = 587
+        
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
+            server.starttls()
+            # server.login("username", "password")  # If auth required
+            server.send_message(msg)
+        
+        return True
+    except:
+        return False
+
+

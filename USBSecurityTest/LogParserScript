@@ -1,0 +1,69 @@
+# read_logs.py
+import csv
+from datetime import datetime
+
+def read_usb_log(log_file_path):
+    """Read and display the log file"""
+    print("\n" + "="*80)
+    print("USB SECURITY TEST RESULTS")
+    print("="*80 + "\n")
+    
+    try:
+        with open(log_file_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+        
+        if not lines:
+            print("No incidents recorded yet.")
+            return
+        
+        print(f"Total Incidents: {len(lines)}\n")
+        print(f"{'Timestamp':<20} {'User':<30} {'Computer':<20} {'OS':<20}")
+        print("-"*80)
+        
+        for line in lines:
+            parts = line.strip().split('|')
+            if len(parts) >= 4:
+                timestamp, user, computer, os_info = parts[0], parts[1], parts[2], parts[3]
+                print(f"{timestamp:<20} {user:<30} {computer:<20} {os_info[:20]:<20}")
+        
+        print("\n" + "="*80)
+        
+    except FileNotFoundError:
+        print(f"Log file not found: {log_file_path}")
+    except Exception as e:
+        print(f"Error reading log: {e}")
+
+def export_to_csv(log_file_path, output_csv):
+    """Export log to CSV for analysis"""
+    try:
+        with open(log_file_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+        
+        with open(output_csv, 'w', newline='', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(['Timestamp', 'User', 'Computer', 'Operating System'])
+            
+            for line in lines:
+                parts = line.strip().split('|')
+                if len(parts) >= 4:
+                    writer.writerow(parts)
+        
+        print(f"\nExported to {output_csv}")
+        
+    except Exception as e:
+        print(f"Error exporting to CSV: {e}")
+
+if __name__ == "__main__":
+    import sys
+    
+    if len(sys.argv) > 1:
+        log_path = sys.argv[1]
+    else:
+        log_path = ".system.log"
+    
+    read_usb_log(log_path)
+    
+    # Optional: Export to CSV
+    export = input("\nExport to CSV? (y/n): ")
+    if export.lower() == 'y':
+        export_to_csv(log_path, "security_test_results.csv")
