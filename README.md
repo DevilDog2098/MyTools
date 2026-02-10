@@ -12,7 +12,7 @@ This repository contains two complementary security tools designed to help IT de
 ## 🛠️ Tools Included
 
 ### 1. USB Exe Blocker
-**Location:** `/usb-exe-blocker/`
+**Location:** `/USBexeBlocker/`
 
 A security enforcement tool that prevents executable files from running on removable USB drives, protecting your network from malware and unauthorized software.
 
@@ -27,7 +27,7 @@ A security enforcement tool that prevents executable files from running on remov
 ---
 
 ### 2. USB Security Awareness Test
-**Location:** `/usb-security-test/`
+**Location:** `/USBSecurityTestt/`
 
 An educational tool that simulates a USB-based attack to test and train employees on proper USB security practices.
 
@@ -61,7 +61,7 @@ An educational tool that simulates a USB-based attack to test and train employee
 
 If you want to **prevent** USB executables from running:
 ```bash
-cd usb-exe-blocker
+cd USBexeBlocker
 # Follow the README.md in that folder
 ```
 
@@ -69,7 +69,7 @@ cd usb-exe-blocker
 
 If you want to **test and educate** employees:
 ```bash
-cd usb-security-test
+cd USBSecurityTest
 # Follow the README.md in that folder
 ```
 
@@ -79,13 +79,13 @@ usb-security-toolkit/
 │
 ├── README.md                          # This file
 │
-├── usb-exe-blocker/                   # USB executable blocking tool
+├── USBexeBlocker/                   # USB executable blocking tool
 │   ├── README.md                      # Setup and usage instructions
 │   ├── blocker.py                     # Main blocking script
 │   ├── install.bat                    # Installation script
 │   └── uninstall.bat                  # Removal script
 │
-└── usb-security-test/                 # USB security awareness test
+└── USBSecurityTest/                 # USB security awareness test
     ├── README.md                      # Complete setup guide
     ├── security_test.py               # Main test program
     ├── read_logs.py                   # Log analysis tool
