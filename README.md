@@ -22,7 +22,7 @@ A security enforcement tool that prevents executable files from running on remov
 - Block unauthorized software installation
 - Protect endpoints from USB-based attacks
 
-**[→ View USB Exe Blocker Documentation](./usb-exe-blocker/README.md)**
+**[→ View USB Exe Blocker Documentation](./USBexeBlocker/README.md)**
 
 ---
 
@@ -38,7 +38,7 @@ An educational tool that simulates a USB-based attack to test and train employee
 - Measure security culture improvement
 - Compliance with security training requirements
 
-**[→ View USB Security Test Documentation](./usb-security-test/README.md)**
+**[→ View USB Security Test Documentation](./USBSecurityTest/README.md)**
 
 ---
 
